@@ -1,0 +1,1 @@
+pipeline {\n    agent any\n    stages {\n        stage('Build') {\n            steps {\n                sh 'javac src/main/java/com/example/App.java'\n            }\n        }\n        stage('Test') {\n            steps {\n                sh 'java -cp src/main/java App'\n            }\n        }\n    }\n}
