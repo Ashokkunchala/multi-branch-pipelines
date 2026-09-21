@@ -1,1 +1,4 @@
-FROM python:3.8-slim\nWORKDIR /app\nCOPY . /app\nRUN pip install flask\nEXPOSE 5000\nCMD ["python", "src/app.py"]
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY build/ ./build/
+CMD ["java", "-cp", "build", "com.example.App"]
