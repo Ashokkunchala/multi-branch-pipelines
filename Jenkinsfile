@@ -7,9 +7,9 @@ pipeline {
   }
   stages {
     stage('Checkout') { steps { checkout scm } }
-    stage('Build') { steps { sh 'php -l src/index.php' } }
-        stage('Test') { steps { sh 'php -r 'echo "PHP OK\\n";'' } }
-        stage('Docker Build') { steps { sh 'docker build --pull -t php-laravel:${BUILD_NUMBER} .' } }
+    stage('Lint') { steps { sh 'php -l src/index.php' } }
+    stage('Test') { steps { sh 'php -r \'echo "PHP OK\\n";\'' } }
+    stage('Docker Build') { steps { sh 'docker build --pull -t php-laravel:${BUILD_NUMBER} .' } }
   }
   post {
     always { echo 'Multibranch build completed' }
