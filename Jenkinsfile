@@ -1,1 +1,44 @@
-pipeline {\n    agent any\n    stages {\n        stage('Install') {\n            steps {\n                sh 'pip install -r requirements.txt'\n            }\n        }\n        stage('Test') {\n            steps {\n                sh 'python -m pytest'\n            }\n        }\n    }\n}
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'javac -d build src/main/java/com/example/App.java'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'java -cp build com.example.App'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build --pull -t java-service:${BUILD_NUMBER} .'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Build ${env.BUILD_TAG} finished with status ${currentBuild.currentResult}"
+        }
+        cleanup {
+            deleteDir()
+        }
+    }
+}
