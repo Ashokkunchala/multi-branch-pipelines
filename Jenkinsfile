@@ -1,25 +1,18 @@
 pipeline {
-    agent any
-    stages {
-        stage('Install') {
-            steps {
-                sh 'npm install'
-            }
-        }
-        stage('Build') {
-            steps {
-                sh 'npm run build'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh 'npm test'
-            }
-        }
-        stage('Build Docker') {
-            steps {
-                sh 'docker build -t typescript-express:latest .'
-            }
-        }
-    }
+  agent any
+  options {
+    timestamps()
+    disableConcurrentBuilds()
+    buildDiscarder(logRotator(numToKeepStr: '20'))
+  }
+  stages {
+    stage('Checkout') { steps { checkout scm } }
+    stage('Build') { steps { sh 'npm ci' } }
+        stage('Test') { steps { sh 'npm run build && npm test' } }
+        stage('Docker Build') { steps { sh 'docker build --pull -t typescript-express:${BUILD_NUMBER} .' } }
+  }
+  post {
+    always { echo 'Multibranch build completed' }
+    cleanup { deleteDir() }
+  }
 }
