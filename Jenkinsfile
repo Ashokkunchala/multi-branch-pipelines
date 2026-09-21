@@ -16,7 +16,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'javac -d build src/main/java/com/example/App.java'
+                sh 'mkdir -p build && javac -d build src/main/java/com/example/App.java'
             }
         }
 
