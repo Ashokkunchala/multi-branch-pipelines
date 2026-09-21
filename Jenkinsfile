@@ -1,20 +1,18 @@
 pipeline {
-    agent any
-    stages {
-        stage('Build') {
-            steps {
-                sh 'dotnet build src/'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh 'dotnet test src/ || echo "No tests defined"'
-            }
-        }
-        stage('Build Docker') {
-            steps {
-                sh 'docker build -t dotnet-webapi:latest .'
-            }
-        }
-    }
+  agent any
+  options {
+    timestamps()
+    disableConcurrentBuilds()
+    buildDiscarder(logRotator(numToKeepStr: '20'))
+  }
+  stages {
+    stage('Checkout') { steps { checkout scm } }
+    stage('Build') { steps { sh 'dotnet restore src/dotnet-webapi.csproj && dotnet build src/dotnet-webapi.csproj --no-restore --configuration Release' } }
+        stage('Test') { steps { sh 'dotnet test src/dotnet-webapi.csproj --no-build --configuration Release' } }
+        stage('Docker Build') { steps { sh 'docker build --pull -t dotnet-webapi:${BUILD_NUMBER} .' } }
+  }
+  post {
+    always { echo 'Multibranch build completed' }
+    cleanup { deleteDir() }
+  }
 }
